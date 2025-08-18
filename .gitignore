@@ -1,0 +1,8 @@
+bin/
+obj/
+.env.*
+env
+.idea/
+*.iml
+*.http
+node_modules/
