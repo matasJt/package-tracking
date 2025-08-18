@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "TjYHBPMCOpQ=",
+  "success": true,
+  "projectFilePath": "/home/emjay/Documents/For Test/PresentCon/package-tracking/package-tracking-api/Web/Web.csproj",
+  "expectedPackageFiles": [
+    "/home/emjay/.nuget/packages/microsoft.aspnetcore.openapi/9.0.6/microsoft.aspnetcore.openapi.9.0.6.nupkg.sha512",
+    "/home/emjay/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
