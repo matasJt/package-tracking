@@ -1,25 +1,19 @@
 import React from 'react';
-import logo from './logo.svg';
+import '@mantine/core/styles.css';
+import { BrowserRouter, Route, Navigate } from "react-router";
+
 import './App.css';
+import { Container, MantineProvider } from '@mantine/core';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <MantineProvider>
+    <Container>
+        <BrowserRouter>
+          
+        </BrowserRouter>
+    </Container>
+   </MantineProvider>
   );
 }
 

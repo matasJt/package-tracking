@@ -1,20 +1,26 @@
+using Application.Interfaces;
+using Application.Services;
+using Infrastructure.Data;
+using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+
 namespace Web;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-
+        builder.Services.AddScoped<PackageService>();
+        builder.Services.AddScoped<IPackageRepository, PackageRepository>();
         builder.Services.AddControllers();
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi();
+        builder.Services.AddDbContext<PackageDbContext>(options => options.UseInMemoryDatabase(builder.Configuration.GetConnectionString("Database")));
 
         var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
+        
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
