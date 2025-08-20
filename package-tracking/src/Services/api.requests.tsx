@@ -1,5 +1,9 @@
 import axios, { AxiosResponse } from "axios";
 
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.withCredentials = true;
+const responseBody = (response: AxiosResponse) => response.data;
+
 const handleError = (error: Error) => {
   if (axios.isAxiosError(error)) {
     if (error.response) {
@@ -16,7 +20,16 @@ const handleError = (error: Error) => {
   throw error;
 };
 
-const requests = {};
+const requests = {
+  post: (url: string, body: {}) =>
+    axios.post(url, body).then(responseBody).catch(handleError),
+  get: (url: string) => axios.get(url).then(responseBody).catch(handleError),
+};
 
-const PackageService = {};
+const PackageService = {
+  createPackage: (data: {}) => requests.post("Package", data),
+  getPackages: () => requests.get("Package"),
+  getPackage: (packageId?:string) => requests.get(`Package/${packageId}`),
+  getHistory: (packageId?:string) => requests.get(`Package/${packageId}/History`)
+};
 export const API = { PackageService };

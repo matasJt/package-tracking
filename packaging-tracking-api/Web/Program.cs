@@ -18,7 +18,8 @@ public static class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi();
         builder.Services.AddDbContext<PackageDbContext>(options => options.UseInMemoryDatabase(builder.Configuration.GetConnectionString("Database")));
-
+        builder.Services.AddCors(policy => policy.AddDefaultPolicy(options =>
+            options.WithOrigins("http://localhost:3001").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
         var app = builder.Build();
         
         if (app.Environment.IsDevelopment())
@@ -28,7 +29,7 @@ public static class Program
 
         app.UseAuthorization();
 
-
+        app.UseCors();
         app.MapControllers();
 
         app.Run();

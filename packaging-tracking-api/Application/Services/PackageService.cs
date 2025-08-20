@@ -73,7 +73,7 @@ public class PackageService(IPackageRepository repository)
             case (Status.Sent, "Accepted"):
                 package.CurrentStatus = Status.Accepted;
                 break;
-            case (Status.Sent, "Return"):
+            case (Status.Sent, "Returned"):
                 package.CurrentStatus = Status.Returned;
                 break;
             case (Status.Sent, "Cancelled"):

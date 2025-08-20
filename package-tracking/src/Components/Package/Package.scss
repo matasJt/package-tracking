@@ -1,0 +1,14 @@
+#package-card{
+    transition: transform .22s;
+    &:hover{
+        transform: translateY(-4px);
+    }
+}
+#update-button:hover #icon {
+  transform: translateX(-2px);
+  transition: all 0.5s;
+}
+#icon {
+  margin-right: 10px;
+  transition: all 0.2s;
+}

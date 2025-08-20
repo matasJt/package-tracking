@@ -10,5 +10,5 @@ public record RecipientDto(
 )
 {
     public static RecipientDto From(Contact recipient) =>
-        new RecipientDto(recipient.Name, recipient.Phone, recipient.Address);
+        new RecipientDto(recipient.Name, recipient.Address, recipient.Phone);
 }
