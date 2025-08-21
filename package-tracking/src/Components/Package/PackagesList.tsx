@@ -2,12 +2,20 @@ import { Button, Flex, Grid, Input, Menu, Paper, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { Package } from "../../Models/Package";
 import { API } from "../../Services/api.requests";
-import { IconCopy, IconFilter, IconPlus, IconUser } from "@tabler/icons-react";
+import "@mantine/notifications/styles.css";
+import {
+  IconCheck,
+  IconCopy,
+  IconFilter,
+  IconPlus,
+  IconUser,
+} from "@tabler/icons-react";
 import { useClipboard, useDisclosure } from "@mantine/hooks";
 import "./Package.scss";
 import { useNavigate } from "react-router";
 import { formatDate } from "../../Services/date.service";
 import CreateForm from "./Modal/CreateForm";
+import { notifications, Notifications } from "@mantine/notifications";
 
 function PackageList() {
   const navigate = useNavigate();
@@ -42,10 +50,31 @@ function PackageList() {
         phone: values.receiverPhone,
       },
     };
-    API.PackageService.createPackage(requestBody).then((p:Package) => {
-      console.log(p);
-      setPackages((old)=> [...old,p]);
-      setFilteredPackages((old)=> [...old, p])
+    API.PackageService.createPackage(requestBody).then((p: Package) => {
+      setPackages((old) => [...old, p]);
+      setFilteredPackages((old) => [...old, p]);
+      notifications.show({
+        autoClose: 2000,
+        message: "Package created",
+        withCloseButton: false,
+        radius: "xl",
+        icon: <IconCheck size={20} />,
+        styles: (theme) => ({
+          root: {
+            backgroundColor: theme.colors.green?.[5],
+            zIndex:'1400'
+          },
+          icon: {
+            backgroundColor: theme.colors.green[5],
+            color: theme.white,
+          },
+          description: {
+            color: theme.white,
+            fontWeight: "bold",
+            fontSize: "15px",
+          },
+        }),
+      });
     });
   };
 
@@ -74,6 +103,7 @@ function PackageList() {
   };
   return (
     <>
+     <Notifications position='bottom-right' />
       <Paper bg="white" radius="md" mt={20} mb={40} p={20}>
         <Flex w="100%" gap={10} align="center">
           <Button size="md" radius="sm" color="green" onClick={open}>

@@ -25,12 +25,14 @@ const requests = {
   post: (url: string, body:any) =>
     axios.post(url, body).then(responseBody).catch(handleError),
   get: (url: string) => axios.get(url).then(responseBody).catch(handleError),
+  put: (url:string) => axios.put(url).then(responseBody).catch(handleError)
 };
 
 const PackageService = {
   createPackage: (data:any) => requests.post("Package", data),
   getPackages: () => requests.get("Package"),
   getPackage: (packageId?:string) => requests.get(`Package/${packageId}`),
-  getHistory: (packageId?:string) => requests.get(`Package/${packageId}/History`)
+  getHistory: (packageId?:string) => requests.get(`Package/${packageId}/History`),
+  updatePackage: (packageId?:string,status?:string) => requests.put(`Package/${packageId}?status=${status}`),
 };
 export const API = { PackageService };

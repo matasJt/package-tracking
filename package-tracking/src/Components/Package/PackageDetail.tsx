@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import { API } from "../../Services/api.requests";
 import { Button, Container, Flex, Menu, Paper, Text } from "@mantine/core";
 import "./Package.scss";
-import { IconRefresh} from "@tabler/icons-react";
+import { IconRefresh } from "@tabler/icons-react";
 import { PackageHistory } from "../../Models/History";
 import ContactDetail from "./ContactDetail";
 import TimeLine from "./TimeLine";
@@ -15,13 +15,25 @@ function PackageDetail() {
   const [packageDetail, setPackage] = useState<Package>();
   const { packageId } = useParams<{ packageId: string }>();
 
-  const updateStatus = (status: string) => {};
+  const updateStatus = async (status: string) => {
+    try {
+      const updatedPackage = await API.PackageService.updatePackage(
+        packageId,
+        status
+      );
+      setPackage((prev) => ({ ...prev, ...updatedPackage }));
 
+      const updatedHistory = await API.PackageService.getHistory(packageId);
+      setHistory(updatedHistory);
+    } catch (error) {
+      console.error("Failed to updated", error);
+    }
+  };
   useEffect(() => {
-    API.PackageService.getPackage(packageId).then((p) => {
+    API.PackageService.getPackage(packageId).then((p: Package) => {
       setPackage(p);
     });
-    API.PackageService.getHistory(packageId).then((h) => {
+    API.PackageService.getHistory(packageId).then((h: PackageHistory[]) => {
       setHistory(h);
     });
   }, [packageId]);
@@ -36,7 +48,7 @@ function PackageDetail() {
             </Text>
             {history.length > 1 ? (
               <Text style={{ color: "gray" }} fw={500}>
-                Last updated: {formatDate((history[history.length - 1].updated))}
+                Last updated: {formatDate(history[history.length - 1].updated)}
               </Text>
             ) : (
               <Text style={{ color: "gray" }} fw={500}>
@@ -46,7 +58,7 @@ function PackageDetail() {
           </Flex>
 
           <Text style={{ color: "blue" }} fw={400}>
-            {packageDetail?.trackingNumber}
+            {packageDetail && packageDetail.trackingNumber}
           </Text>
           <Menu>
             <Menu.Target>
@@ -72,10 +84,20 @@ function PackageDetail() {
       </Paper>
       {/* Details */}
       <Flex justify="center" gap={20}>
-        {packageDetail && <ContactDetail contact={packageDetail?.sender} title={"Sender Information"} />}
-         {packageDetail && <ContactDetail contact={packageDetail?.receiver} title={"Receiver Information"} />}  
+        {packageDetail?.sender && (
+          <ContactDetail
+            contact={packageDetail.sender}
+            title="Sender Information"
+          />
+        )}
+        {packageDetail?.receiver && (
+          <ContactDetail
+            contact={packageDetail.receiver}
+            title="Receiver Information"
+          />
+        )}
       </Flex>
-      <TimeLine history={history}/>
+      <TimeLine history={history} />
     </>
   );
 }

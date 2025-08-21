@@ -3,8 +3,8 @@ import { IconUser } from "@tabler/icons-react";
 import { Contact } from "../../Models/Contact";
 
 interface DetailsProps {
-  contact: Contact;
-  title: string;
+  contact?: Contact;
+  title?: string;
 }
 
 function ContactDetail({ contact, title }: DetailsProps) {
@@ -19,19 +19,19 @@ function ContactDetail({ contact, title }: DetailsProps) {
           <Text fs="italic" style={{ color: "gray" }}>
             Name
           </Text>
-          {contact.name}
+          {contact?.name}
         </Text>
         <Text size="sm" fs="italic">
           <Text fs="italic" style={{ color: "gray" }}>
             Address
           </Text>
-          {contact.address}
+          {contact?.address}
         </Text>
         <Text size="sm" fs="italic">
           <Text fs="italic" style={{ color: "gray" }}>
             Phone
           </Text>
-          {contact.phone}
+          {contact?.phone}
         </Text>
       </Flex>
     </Paper>

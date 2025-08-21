@@ -52,7 +52,7 @@ namespace Web.Controllers
            var updatedPackage = await packageService.UpdatePackageStatus(packageId,status);
            if (updatedPackage.Success != true)
            {
-               return BadRequest(updatedPackage.Message);
+               return BadRequest(new  {message = updatedPackage.Message});
            }
            return Ok(updatedPackage);
         }
