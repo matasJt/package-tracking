@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "@mantine/core/styles.css";
 import { BrowserRouter, Route, Navigate, Routes } from "react-router";
 import "./App.css";
@@ -8,6 +8,7 @@ import PackageList from "./Components/Package/PackagesList";
 import PackageDetail from "./Components/Package/PackageDetail";
 
 function App() {
+
   return (
     <MantineProvider>
       <Header />
@@ -15,7 +16,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Navigate to="/packages" replace />} />
-            <Route path="/packages/" element={<PackageList />} />
+            <Route path="/packages/" element={<PackageList /> } />
             <Route path="packages/:packageId" element={<PackageDetail />} />
           </Routes>
         </BrowserRouter>

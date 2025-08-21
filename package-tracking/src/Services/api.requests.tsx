@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { Package } from "../Models/Package";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 axios.defaults.withCredentials = true;
@@ -21,13 +22,13 @@ const handleError = (error: Error) => {
 };
 
 const requests = {
-  post: (url: string, body: {}) =>
+  post: (url: string, body:any) =>
     axios.post(url, body).then(responseBody).catch(handleError),
   get: (url: string) => axios.get(url).then(responseBody).catch(handleError),
 };
 
 const PackageService = {
-  createPackage: (data: {}) => requests.post("Package", data),
+  createPackage: (data:any) => requests.post("Package", data),
   getPackages: () => requests.get("Package"),
   getPackage: (packageId?:string) => requests.get(`Package/${packageId}`),
   getHistory: (packageId?:string) => requests.get(`Package/${packageId}/History`)

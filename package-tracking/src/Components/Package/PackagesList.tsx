@@ -1,25 +1,58 @@
-import { Flex, Grid, Paper, Text } from "@mantine/core";
+import { Button, Flex, Grid, Input, Menu, Paper, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { Package } from "../../Models/Package";
 import { API } from "../../Services/api.requests";
-import { IconCopy, IconUser } from "@tabler/icons-react";
-import { useClipboard } from "@mantine/hooks";
+import { IconCopy, IconFilter, IconPlus, IconUser } from "@tabler/icons-react";
+import { useClipboard, useDisclosure } from "@mantine/hooks";
 import "./Package.scss";
 import { useNavigate } from "react-router";
 import { formatDate } from "../../Services/date.service";
+import CreateForm from "./Modal/CreateForm";
 
 function PackageList() {
   const navigate = useNavigate();
   const [packages, setPackages] = useState<Package[]>([]);
   const clipboard = useClipboard({ timeout: 500 });
+  const [opened, { open, close }] = useDisclosure(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+
+  const filterByTrackingNumber = (inputValue: string) => {
+    setSearchValue(inputValue);
+    const filtered = packages.filter((p) =>
+      p.trackingNumber.includes(inputValue)
+    );
+    setFilteredPackages(filtered);
+  };
 
   const openDetails = (packageId: string) => {
     navigate(`/packages/${packageId}`);
   };
 
+  const onCreate = (values: any) => {
+    const requestBody = {
+      sender: {
+        name: values.senderName,
+        address: values.senderAddress,
+        phone: values.senderPhone,
+      },
+      recipient: {
+        name: values.receiverName,
+        address: values.receiverAddress,
+        phone: values.receiverPhone,
+      },
+    };
+    API.PackageService.createPackage(requestBody).then((p:Package) => {
+      console.log(p);
+      setPackages((old)=> [...old,p]);
+      setFilteredPackages((old)=> [...old, p])
+    });
+  };
+
   useEffect(() => {
     API.PackageService.getPackages().then((packages) => {
       setPackages(packages);
+      setFilteredPackages(packages);
     });
   }, []);
 
@@ -40,79 +73,123 @@ function PackageList() {
     }
   };
   return (
-    <Grid m="2rem">
-      {Array.isArray(packages) &&
-        packages.map((p) => (
-          <Grid.Col span={3} key={p.trackingNumber}>
-            <Paper
-              withBorder
-              radius="lg"
-              p="lg"
-              bg="white"
-              h="350px"
-              id="package-card"
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                openDetails(p.id);
-              }}
-            >
-              <Flex align="center">
-                <Text size="sm" mr="2" fw={700}>
-                  {p.trackingNumber.toUpperCase()}
-                </Text>
-                <IconCopy
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clipboard.copy(p.trackingNumber);
-                  }}
-                  size={17}
-                />
-              </Flex>
-              <Text
-                size="sm"
-                style={{
-                  color: "gray",
-                }}
-              >
-                Created: {formatDate(p.created)}
-              </Text>
-              <Flex direction="column" gap="lg" mt="md">
-                <div>
-                  <Text fw={600} size="md">
-                    <IconUser size={20} style={{ marginRight: "5px" }} />
-                    Sender:
-                  </Text>
-                  <Text size="sm" fs='italic' >{p.sender.name}</Text>
-                  <Text size="sm" fs='italic'>{p.sender.address}</Text>
-                  <Text size="sm" fs='italic'>{p.sender.phone}</Text>
-                </div>
-                <div>
-                  <Text fw={600} size="md">
-                    <IconUser size={20} style={{ marginRight: "5px" }} />
-                    Receiver:
-                  </Text>
-                  <Text size="sm" fs='italic'>{p.receiver.name}</Text>
-                  <Text size="sm" fs='italic'>{p.receiver.address}</Text>
-                  <Text size="sm" fs='italic'>{p.sender.phone}</Text>
-                </div>
-              </Flex>
+    <>
+      <Paper bg="white" radius="md" mt={20} mb={40} p={20}>
+        <Flex w="100%" gap={10} align="center">
+          <Button size="md" radius="sm" color="green" onClick={open}>
+            <IconPlus />
+            Create Package
+          </Button>
+          <Menu>
+            <Menu.Target>
+              <Button size="md" radius="sm">
+                <IconFilter />
+                Filter by status
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item></Menu.Item>
+              <Menu.Item>Cancelled</Menu.Item>
+              <Menu.Item>Accepted</Menu.Item>
+              <Menu.Item>Return</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+          <Input
+            size="md"
+            placeholder="Filter by tracking number"
+            value={searchValue}
+            onChange={(e) => filterByTrackingNumber(e.target.value)}
+          />
+        </Flex>
+      </Paper>
+      <CreateForm opened={opened} onClose={close} onSubmit={onCreate} />
+
+      <Grid mb="2rem">
+        {Array.isArray(filteredPackages) &&
+          filteredPackages.map((p) => (
+            <Grid.Col span={3} key={p.id}>
               <Paper
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                withBorder
+                radius="lg"
+                p="lg"
+                bg="white"
+                h="350px"
+                id="package-card"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  openDetails(p.id);
                 }}
-                bg={statusStyle(p.status)}
-                radius="sm"
-                mt={10}
-                h="2rem"
               >
-                <Text fw={400}>{p.status}</Text>
+                <Flex align="center">
+                  <Text size="sm" mr="2" fw={700}>
+                    {p.trackingNumber}
+                  </Text>
+                  <IconCopy
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      clipboard.copy(p.trackingNumber);
+                    }}
+                    size={17}
+                  />
+                </Flex>
+                <Text
+                  size="sm"
+                  style={{
+                    color: "gray",
+                  }}
+                >
+                  Created: {formatDate(p.created)}
+                </Text>
+                <Flex direction="column" gap="lg" mt="md">
+                  <div>
+                    <Text fw={600} size="md">
+                      <IconUser size={20} style={{ marginRight: "5px" }} />
+                      Sender:
+                    </Text>
+                    <Text size="sm" fs="italic">
+                      {p.sender.name}
+                    </Text>
+                    <Text size="sm" fs="italic">
+                      {p.sender.address}
+                    </Text>
+                    <Text size="sm" fs="italic">
+                      {p.sender.phone}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text fw={600} size="md">
+                      <IconUser size={20} style={{ marginRight: "5px" }} />
+                      Receiver:
+                    </Text>
+                    <Text size="sm" fs="italic">
+                      {p.receiver.name}
+                    </Text>
+                    <Text size="sm" fs="italic">
+                      {p.receiver.address}
+                    </Text>
+                    <Text size="sm" fs="italic">
+                      {p.sender.phone}
+                    </Text>
+                  </div>
+                </Flex>
+                <Paper
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  bg={statusStyle(p.status)}
+                  radius="sm"
+                  mt={10}
+                  h="2rem"
+                >
+                  <Text fw={400}>{p.status}</Text>
+                </Paper>
               </Paper>
-            </Paper>
-          </Grid.Col>
-        ))}
-    </Grid>
+            </Grid.Col>
+          ))}
+      </Grid>
+    </>
   );
 }
 export default PackageList;

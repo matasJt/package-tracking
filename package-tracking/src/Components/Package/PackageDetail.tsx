@@ -46,12 +46,11 @@ function PackageDetail() {
           </Flex>
 
           <Text style={{ color: "blue" }} fw={400}>
-            {packageDetail?.trackingNumber.toUpperCase()}
+            {packageDetail?.trackingNumber}
           </Text>
           <Menu>
             <Menu.Target>
               <Button id="update-button" mt={20}>
-                {" "}
                 <IconRefresh id="icon" size={18} />
                 Update Status
               </Button>
