@@ -16,7 +16,6 @@ public class PackageService(IPackageRepository repository)
         var initialHistory = new PackageHistory(newPackage.CurrentStatus);
         newPackage.UpdateHistory(initialHistory);
         await repository.AddAsync(newPackage);
-        Console.Write(newPackage.Id);
         return PackageDto.From(newPackage);
     }
 
@@ -51,6 +50,10 @@ public class PackageService(IPackageRepository repository)
     public async Task<ResultSerivce<PackageDto?>> UpdatePackageStatus(Guid id,string status)
     {
         var package = await repository.GetAsync(id);
+        if (!Enum.TryParse(status, true, out Status newStatus))
+        {
+            return ResultSerivce<PackageDto?>.Fail($"Invalid status: {status}");
+        }
         if (package == null)
         {
             return ResultSerivce<PackageDto?>.Fail("Package not found");
@@ -61,29 +64,29 @@ public class PackageService(IPackageRepository repository)
             return ResultSerivce<PackageDto?>.Fail($"Cannot update package status from {package.CurrentStatus.ToString()} status");
         }
         
-        switch (package.CurrentStatus, status)
+        switch (package.CurrentStatus, newStatus)
         {
-            case (Status.Created, "Sent"):
+            case (Status.Created, Status.Sent):
                 package.CurrentStatus = Status.Sent;
                 break;
-            case (Status.Created, "Cancelled"):
+            case (Status.Created, Status.Cancelled):
                 package.CurrentStatus = Status.Cancelled;
                 break;
             
-            case (Status.Sent, "Accepted"):
+            case (Status.Sent, Status.Accepted):
                 package.CurrentStatus = Status.Accepted;
                 break;
-            case (Status.Sent, "Returned"):
+            case (Status.Sent, Status.Returned):
                 package.CurrentStatus = Status.Returned;
                 break;
-            case (Status.Sent, "Cancelled"):
+            case (Status.Sent, Status.Cancelled):
                 package.CurrentStatus = Status.Cancelled;
                 break;
             
-            case (Status.Returned, "Sent"):
+            case (Status.Returned, Status.Sent):
                 package.CurrentStatus = Status.Sent;
                 break;
-            case (Status.Returned, "Cancelled"):
+            case (Status.Returned, Status.Cancelled):
                 package.CurrentStatus = Status.Cancelled;
                 break;
             
