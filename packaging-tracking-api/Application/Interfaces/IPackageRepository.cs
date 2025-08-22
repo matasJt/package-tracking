@@ -9,5 +9,4 @@ public interface IPackageRepository
     public Task<List<Package>> GetAllAsync();
     public Task AddAsync(Package package);
     public Task UpdateAsync(Package package);
-    public Task AddHis(PackageHistory history);
 }

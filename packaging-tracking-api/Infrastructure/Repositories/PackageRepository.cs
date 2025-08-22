@@ -43,10 +43,4 @@ public class PackageRepository(PackageDbContext dbcontext) : IPackageRepository
     
         await dbcontext.SaveChangesAsync();
     }
-
-    public async Task AddHis(PackageHistory history)
-    {
-        dbcontext.PackageHistory.Add(history);
-        await dbcontext.SaveChangesAsync();
-    }
 }
