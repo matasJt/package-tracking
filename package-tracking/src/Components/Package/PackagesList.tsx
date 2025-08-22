@@ -38,7 +38,7 @@ function PackageList() {
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
   const statuses = [
     { value: "Cancelled", icon: <IconCancel /> },
-    { value: "Return", icon: <IconTruckReturn /> },
+    { value: "Returned", icon: <IconTruckReturn /> },
     { value: "Accepted", icon: <IconCheck /> },
     { value: "Created", icon: <IconPlus /> },
     { value: "Sent", icon: <IconSend /> },

@@ -50,7 +50,7 @@ public class PackageService(IPackageRepository repository)
     public async Task<ResultSerivce<PackageDto?>> UpdatePackageStatus(Guid id,string status)
     {
         var package = await repository.GetAsync(id);
-        if (!Enum.TryParse(status, true, out Status newStatus))
+        if (!Enum.TryParse(status, false, out Status newStatus))
         {
             return ResultSerivce<PackageDto?>.Fail($"Invalid status: {status}");
         }

@@ -26,7 +26,7 @@ function PackageDetail() {
   const { packageId } = useParams<{ packageId: string }>();
   const statuses = [
     { value: "Cancelled", icon: <IconCancel /> },
-    { value: "Return", icon: <IconTruckReturn /> },
+    { value: "Returned", icon: <IconTruckReturn /> },
     { value: "Accepted", icon: <IconCheck /> },
     { value: "Sent", icon: <IconSend /> },
   ];
