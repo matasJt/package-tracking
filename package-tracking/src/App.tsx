@@ -6,21 +6,23 @@ import { Container, MantineProvider } from "@mantine/core";
 import Header from "./Components/Package/Header/Header";
 import PackageList from "./Components/Package/PackagesList";
 import PackageDetail from "./Components/Package/PackageDetail";
+import { ModalsProvider } from "@mantine/modals";
 
 function App() {
-
   return (
     <MantineProvider>
-      <Header />
-      <Container size="lg">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/packages" replace />} />
-            <Route path="/packages/" element={<PackageList /> } />
-            <Route path="packages/:packageId" element={<PackageDetail />} />
-          </Routes>
-        </BrowserRouter>
-      </Container>
+      <ModalsProvider modalProps={{zIndex:1500}}>
+        <Header />
+        <Container size="lg">
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Navigate to="/packages" replace />} />
+              <Route path="/packages/" element={<PackageList />} />
+              <Route path="packages/:packageId" element={<PackageDetail />} />
+            </Routes>
+          </BrowserRouter>
+        </Container>
+      </ModalsProvider>
     </MantineProvider>
   );
 }

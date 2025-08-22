@@ -88,7 +88,7 @@ public class PackageService(IPackageRepository repository)
                 break;
             
             default:
-                return ResultSerivce<PackageDto?>.Fail($"Unknown status or invalid transition: {status}");
+                return ResultSerivce<PackageDto?>.Fail($"Unknown status or invalid transition to: {status}");
         }
 
         var newHistory = new PackageHistory(package.CurrentStatus)

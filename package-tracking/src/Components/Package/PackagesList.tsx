@@ -1,13 +1,24 @@
-import { Button, Flex, Grid, Input, Menu, Paper, Text } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  Grid,
+  Input,
+  Menu,
+  Paper,
+  Text,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { Package } from "../../Models/Package";
 import { API } from "../../Services/api.requests";
 import "@mantine/notifications/styles.css";
 import {
+  IconCancel,
   IconCheck,
   IconCopy,
   IconFilter,
   IconPlus,
+  IconSend,
+  IconTruckReturn,
   IconUser,
 } from "@tabler/icons-react";
 import { useClipboard, useDisclosure } from "@mantine/hooks";
@@ -16,6 +27,7 @@ import { useNavigate } from "react-router";
 import { formatDate } from "../../Services/date.service";
 import CreateForm from "./Modal/CreateForm";
 import { notifications, Notifications } from "@mantine/notifications";
+import { Else, If, Then } from "react-if";
 
 function PackageList() {
   const navigate = useNavigate();
@@ -24,6 +36,13 @@ function PackageList() {
   const [opened, { open, close }] = useDisclosure(false);
   const [searchValue, setSearchValue] = useState("");
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+  const statuses = [
+    { value: "Cancelled", icon: <IconCancel /> },
+    { value: "Return", icon: <IconTruckReturn /> },
+    { value: "Accepted", icon: <IconCheck /> },
+    { value: "Created", icon: <IconPlus /> },
+    { value: "Sent", icon: <IconSend /> },
+  ];
 
   const filterByTrackingNumber = (inputValue: string) => {
     setSearchValue(inputValue);
@@ -33,11 +52,21 @@ function PackageList() {
     setFilteredPackages(filtered);
   };
 
+  const resetFilter = () => {
+    setFilteredPackages(packages);
+  };
+
+  const filterByStatus = (status: string) => {
+    const filtered = packages.filter((p) => p.status === status);
+    setFilteredPackages(filtered);
+  };
+
   const openDetails = (packageId: string) => {
     navigate(`/packages/${packageId}`);
   };
 
   const onCreate = (values: any) => {
+    resetFilter()
     const requestBody = {
       sender: {
         name: values.senderName,
@@ -62,7 +91,6 @@ function PackageList() {
         styles: (theme) => ({
           root: {
             backgroundColor: theme.colors.green?.[5],
-            zIndex:'1400'
           },
           icon: {
             backgroundColor: theme.colors.green[5],
@@ -103,7 +131,7 @@ function PackageList() {
   };
   return (
     <>
-     <Notifications position='bottom-right' />
+      <Notifications position="bottom-right" />
       <Paper bg="white" radius="md" mt={20} mb={40} p={20}>
         <Flex w="100%" gap={10} align="center">
           <Button size="md" radius="sm" color="green" onClick={open}>
@@ -118,10 +146,18 @@ function PackageList() {
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item></Menu.Item>
-              <Menu.Item>Cancelled</Menu.Item>
-              <Menu.Item>Accepted</Menu.Item>
-              <Menu.Item>Return</Menu.Item>
+              {statuses.map((status, index) => (
+                <Menu.Item
+                  key={index}
+                  onClick={() => filterByStatus(status.value)}
+                >
+                  <Flex>
+                    {status.icon}
+                    {status.value}
+                  </Flex>
+                </Menu.Item>
+              ))}
+              <Menu.Item onClick={resetFilter}>Reset</Menu.Item>
             </Menu.Dropdown>
           </Menu>
           <Input
@@ -133,92 +169,112 @@ function PackageList() {
         </Flex>
       </Paper>
       <CreateForm opened={opened} onClose={close} onSubmit={onCreate} />
-
-      <Grid mb="2rem">
-        {Array.isArray(filteredPackages) &&
-          filteredPackages.map((p) => (
-            <Grid.Col span={3} key={p.id}>
-              <Paper
-                withBorder
-                radius="lg"
-                p="lg"
-                bg="white"
-                h="350px"
-                id="package-card"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  openDetails(p.id);
-                }}
-              >
-                <Flex align="center">
-                  <Text size="sm" mr="2" fw={700}>
-                    {p.trackingNumber}
-                  </Text>
-                  <IconCopy
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      clipboard.copy(p.trackingNumber);
-                    }}
-                    size={17}
-                  />
-                </Flex>
-                <Text
-                  size="sm"
-                  style={{
-                    color: "gray",
-                  }}
-                >
-                  Created: {formatDate(p.created)}
-                </Text>
-                <Flex direction="column" gap="lg" mt="md">
-                  <div>
-                    <Text fw={600} size="md">
-                      <IconUser size={20} style={{ marginRight: "5px" }} />
-                      Sender:
-                    </Text>
-                    <Text size="sm" fs="italic">
-                      {p.sender.name}
-                    </Text>
-                    <Text size="sm" fs="italic">
-                      {p.sender.address}
-                    </Text>
-                    <Text size="sm" fs="italic">
-                      {p.sender.phone}
-                    </Text>
-                  </div>
-                  <div>
-                    <Text fw={600} size="md">
-                      <IconUser size={20} style={{ marginRight: "5px" }} />
-                      Receiver:
-                    </Text>
-                    <Text size="sm" fs="italic">
-                      {p.receiver.name}
-                    </Text>
-                    <Text size="sm" fs="italic">
-                      {p.receiver.address}
-                    </Text>
-                    <Text size="sm" fs="italic">
-                      {p.sender.phone}
-                    </Text>
-                  </div>
-                </Flex>
+      <If condition={filteredPackages.length > 0}>
+        <Then>
+          <Grid mb="2rem">
+            {filteredPackages.map((p) => (
+              <Grid.Col span={3} key={p.id}>
                 <Paper
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                  withBorder
+                  radius="lg"
+                  p="lg"
+                  bg="white"
+                  h="350px"
+                  id="package-card"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    openDetails(p.id);
                   }}
-                  bg={statusStyle(p.status)}
-                  radius="sm"
-                  mt={10}
-                  h="2rem"
                 >
-                  <Text fw={400}>{p.status}</Text>
+                  <Flex align="center">
+                    <Text size="sm" mr="2" fw={700}>
+                      {p.trackingNumber}
+                    </Text>
+                    <IconCopy
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clipboard.copy(p.trackingNumber);
+                      }}
+                      size={17}
+                    />
+                  </Flex>
+                  <Text
+                    size="sm"
+                    style={{
+                      color: "gray",
+                    }}
+                  >
+                    Created: {formatDate(p.created)}
+                  </Text>
+                  <Flex direction="column" gap="lg" mt="md">
+                    <div>
+                      <Text fw={600} size="md">
+                        <IconUser size={20} style={{ marginRight: "5px" }} />
+                        Sender:
+                      </Text>
+                      <Text size="sm" fs="italic">
+                        {p.sender.name}
+                      </Text>
+                      <Text size="sm" fs="italic">
+                        {p.sender.address}
+                      </Text>
+                      <Text size="sm" fs="italic">
+                        {p.sender.phone}
+                      </Text>
+                    </div>
+                    <div>
+                      <Text fw={600} size="md">
+                        <IconUser size={20} style={{ marginRight: "5px" }} />
+                        Receiver:
+                      </Text>
+                      <Text size="sm" fs="italic">
+                        {p.receiver.name}
+                      </Text>
+                      <Text size="sm" fs="italic">
+                        {p.receiver.address}
+                      </Text>
+                      <Text size="sm" fs="italic">
+                        {p.sender.phone}
+                      </Text>
+                    </div>
+                  </Flex>
+                  <Paper
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    bg={statusStyle(p.status)}
+                    radius="sm"
+                    mt={10}
+                    h="2rem"
+                  >
+                    <Text fw={400}>{p.status}</Text>
+                  </Paper>
                 </Paper>
-              </Paper>
-            </Grid.Col>
-          ))}
-      </Grid>
+              </Grid.Col>
+            ))}
+          </Grid>
+        </Then>
+        <Else>
+          <Paper h={100}>
+              <Flex
+                w="100%"
+                h="100%"
+                justify="center"
+                align="center"
+                direction="column"
+              >
+                <Text size="xl" fw={700}>
+                  No packages found.
+                </Text>
+                <Text color="dimmed" size="sm">
+                  Not packages found by selected filter
+                </Text>
+              </Flex>
+            </Paper>
+        </Else>
+      </If>
     </>
   );
 }
