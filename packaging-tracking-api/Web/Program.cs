@@ -14,6 +14,7 @@ public static class Program
 
         builder.Services.AddScoped<PackageService>();
         builder.Services.AddScoped<IPackageRepository, PackageRepository>();
+        builder.Services.AddScoped<SeedData>();
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi();
@@ -27,9 +28,13 @@ public static class Program
             app.MapOpenApi();
         }
 
-        app.UseAuthorization();
-
+        using (var scope = app.Services.CreateScope())
+        {
+            var seeder = scope.ServiceProvider.GetRequiredService<SeedData>();
+            _ = seeder.SeedAsync();
+        }
         app.UseCors();
+        app.UseAuthorization();
         app.MapControllers();
 
         app.Run();
