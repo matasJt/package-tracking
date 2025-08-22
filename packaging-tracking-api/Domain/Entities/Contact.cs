@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Entities;
 
