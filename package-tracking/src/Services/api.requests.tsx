@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import { Package } from "../Models/Package";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 axios.defaults.withCredentials = true;
@@ -30,7 +29,7 @@ const requests = {
 
 const PackageService = {
   createPackage: (data:any) => requests.post("Package", data),
-  getPackages: () => requests.get("Package"),
+  getPackages: (page:string,statusFilter:string,trackingNumber:string) => requests.get(`Package?page=${page}&status=${statusFilter}&trackingNumber=${trackingNumber}`),
   getPackage: (packageId?:string) => requests.get(`Package/${packageId}`),
   getHistory: (packageId?:string) => requests.get(`Package/${packageId}/History`),
   updatePackage: (packageId?:string,status?:string) => requests.put(`Package/${packageId}?status=${status}`),

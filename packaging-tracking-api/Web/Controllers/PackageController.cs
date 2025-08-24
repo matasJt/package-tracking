@@ -29,9 +29,9 @@ namespace Web.Controllers
            return Ok(packageHistory);
         }
         [HttpGet]
-        public async Task<List<PackageDto>> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int page, [FromQuery] string status = "", [FromQuery] string trackingNumber = "")
         {
-            return await packageService.GetPackages();
+            return Ok(await packageService.GetPackages(page,status, trackingNumber));
         }
 
         [HttpPost]

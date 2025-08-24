@@ -41,7 +41,7 @@ function PackageDetail() {
         return "red";
       case "Accepted":
         return "green";
-      case "Return":
+      case "Returned":
         return "gray";
       default:
         return {};

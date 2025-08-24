@@ -2,10 +2,11 @@ import {
   Button,
   Flex,
   Grid,
-  Input,
   Menu,
+  Pagination,
   Paper,
   Text,
+  TextInput,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { Package } from "../../Models/Package";
@@ -21,9 +22,9 @@ import {
   IconTruckReturn,
   IconUser,
 } from "@tabler/icons-react";
-import { useClipboard, useDisclosure } from "@mantine/hooks";
+import { getHotkeyHandler, useClipboard, useDisclosure } from "@mantine/hooks";
 import "./Package.scss";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { formatDate } from "../../Services/date.service";
 import CreateForm from "./Modal/CreateForm";
 import { notifications, Notifications } from "@mantine/notifications";
@@ -31,11 +32,23 @@ import { Else, If, Then } from "react-if";
 
 function PackageList() {
   const navigate = useNavigate();
-  const [packages, setPackages] = useState<Package[]>([]);
   const clipboard = useClipboard({ timeout: 500 });
   const [opened, { open, close }] = useDisclosure(false);
   const [searchValue, setSearchValue] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [activePage, setPage] = useState(() => {
+    return parseInt(searchParams.get("page") || "1", 10);
+  });
+
+  const [filter, setFilter] = useState(() => {
+    return searchParams.get("status") || "";
+  });
+
+  const [appliedTrackingNumber, setAppliedTrackingNumber] = useState(() => {
+    return searchParams.get("trackingNumber") || "";
+  });
   const statuses = [
     { value: "Cancelled", icon: <IconCancel /> },
     { value: "Returned", icon: <IconTruckReturn /> },
@@ -44,21 +57,26 @@ function PackageList() {
     { value: "Sent", icon: <IconSend /> },
   ];
 
-  const filterByTrackingNumber = (inputValue: string) => {
-    setSearchValue(inputValue);
-    const filtered = packages.filter((p) =>
-      p.trackingNumber.includes(inputValue)
-    );
-    setFilteredPackages(filtered);
+  const filterByTrackingNumber = () => {
+    setAppliedTrackingNumber(searchValue);
+    setSearchParams({
+      page: activePage.toString(),
+      trackingNumber: searchValue,
+    });
+    setPage(1);
   };
 
   const resetFilter = () => {
-    setFilteredPackages(packages);
+    setAppliedTrackingNumber("");
+    setFilter("");
+    setSearchParams({ page: activePage.toString() });
+    setPage(1);
   };
 
   const filterByStatus = (status: string) => {
-    const filtered = packages.filter((p) => p.status === status);
-    setFilteredPackages(filtered);
+    setFilter(status);
+    setSearchParams({ page: activePage.toString(), status: status });
+    setPage(1);
   };
 
   const openDetails = (packageId: string) => {
@@ -66,7 +84,6 @@ function PackageList() {
   };
 
   const onCreate = (values: any) => {
-    resetFilter()
     const requestBody = {
       sender: {
         name: values.senderName,
@@ -79,9 +96,7 @@ function PackageList() {
         phone: values.receiverPhone,
       },
     };
-    API.PackageService.createPackage(requestBody).then((p: Package) => {
-      setPackages((old) => [...old, p]);
-      setFilteredPackages((old) => [...old, p]);
+    API.PackageService.createPackage(requestBody).then(() => {
       notifications.show({
         autoClose: 2000,
         message: "Package created",
@@ -104,14 +119,28 @@ function PackageList() {
         }),
       });
     });
+    resetFilter();
   };
 
   useEffect(() => {
-    API.PackageService.getPackages().then((packages) => {
-      setPackages(packages);
-      setFilteredPackages(packages);
-    });
-  }, []);
+    const page = activePage.toString();
+    const status = filter || "";
+    const trackingNumber = appliedTrackingNumber || "";
+
+    setSearchParams({ page, status, trackingNumber });
+    API.PackageService.getPackages(page, status, trackingNumber).then(
+      (packages) => {
+        setFilteredPackages(packages.packages);
+        setTotalPages(packages.totalPageCount);
+      }
+    );
+  }, [
+    activePage,
+    setSearchParams,
+    filter,
+    appliedTrackingNumber,
+    searchParams,
+  ]);
 
   const statusStyle = (status: string) => {
     switch (status) {
@@ -160,11 +189,12 @@ function PackageList() {
               <Menu.Item onClick={resetFilter}>Reset</Menu.Item>
             </Menu.Dropdown>
           </Menu>
-          <Input
+          <TextInput
             size="md"
             placeholder="Filter by tracking number"
             value={searchValue}
-            onChange={(e) => filterByTrackingNumber(e.target.value)}
+            onChange={(event) => setSearchValue(event.target.value)}
+            onKeyDown={getHotkeyHandler([["Enter", filterByTrackingNumber]])}
           />
         </Flex>
       </Paper>
@@ -258,23 +288,26 @@ function PackageList() {
         </Then>
         <Else>
           <Paper h={100}>
-              <Flex
-                w="100%"
-                h="100%"
-                justify="center"
-                align="center"
-                direction="column"
-              >
-                <Text size="xl" fw={700}>
-                  No packages found.
-                </Text>
-                <Text color="dimmed" size="sm">
-                  Not packages found by selected filter
-                </Text>
-              </Flex>
-            </Paper>
+            <Flex
+              w="100%"
+              h="100%"
+              justify="center"
+              align="center"
+              direction="column"
+            >
+              <Text size="xl" fw={700}>
+                No packages found.
+              </Text>
+              <Text color="dimmed" size="sm">
+                Not packages found by selected filter
+              </Text>
+            </Flex>
+          </Paper>
         </Else>
       </If>
+      <Flex pb={100}>
+        <Pagination total={totalPages} onChange={setPage} value={activePage} />
+      </Flex>
     </>
   );
 }

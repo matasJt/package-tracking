@@ -2,11 +2,13 @@ using Application.Dto;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
 public class PackageService(IPackageRepository repository)
 {
+    private const int PageSize = 8;
     public async Task<PackageDto> CreatePackage(CreatePackageDto dto)
     {
         var newPackage = new Package(
@@ -29,10 +31,27 @@ public class PackageService(IPackageRepository repository)
         return PackageDto.From(package);
     }
 
-    public async Task<List<PackageDto>> GetPackages()
+    public async Task<PaginatedDto> GetPackages(int  page,string statusFilter, string trackingNumberFilter)
     {
-        var packages = await repository.GetAllAsync();
-        return packages.Select(package => PackageDto.From(package)).ToList();
+        var query = repository.GetAllAsync();
+
+        if (!string.IsNullOrEmpty(statusFilter) && Enum.TryParse(statusFilter, false, out Status status))
+        {
+            query = query.Where(p => p.CurrentStatus == status);
+        }
+
+        if (!string.IsNullOrEmpty(trackingNumberFilter))
+        {
+            query = query.Where(p => p.TrackingNumber == trackingNumberFilter);
+        }
+
+        var packagesCount = query.CountAsync().Result;
+        var packagesPaginated = await query.Skip((page - 1) * PageSize).Take(PageSize).ToListAsync();
+        return (new PaginatedDto
+        {
+            Packages = packagesPaginated.Select(package => PackageDto.From(package)).ToList(),
+            TotalPageCount = Math.Ceiling(packagesCount / (double)PageSize)
+        });
     }
 
     public async Task<List<PackageHistoryDto>?> GetPackageHistory(Guid id)

@@ -15,11 +15,11 @@ public class PackageRepository(PackageDbContext dbcontext) : IPackageRepository
             .Include(g => g.History)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
-    public async Task<List<Package>> GetAllAsync()
+    public IQueryable<Package> GetAllAsync()
     {
-        return await dbcontext.Packages
+        return dbcontext.Packages
             .Include(g => g.Recipient)
-            .Include(g => g.Sender).ToListAsync();
+            .Include(g => g.Sender);
     }
     public async Task AddAsync(Package package)
     {
