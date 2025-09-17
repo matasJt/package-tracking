@@ -12,7 +12,7 @@ public class SeedData(PackageDbContext context)
             new Contact(c.Address.StreetAddress(), c.Name.FirstName(), c.Phone.PhoneNumber()));
         var fakerPackages =
             new Faker<Package>().CustomInstantiator(p => new Package(fakerContact.Generate(), fakerContact.Generate()));
-        var packages = fakerPackages.Generate(200);
+        var packages = fakerPackages.Generate(10000);
         foreach (var package in packages)
         {
             var initialHistory = new PackageHistory(package.CurrentStatus);

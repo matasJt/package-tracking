@@ -1,4 +1,3 @@
-using Application.Dto;
 using Domain.Entities;
 
 namespace Application.Interfaces;

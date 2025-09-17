@@ -1,0 +1,44 @@
+import axios, { type AxiosResponse } from "axios";
+
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
+axios.defaults.withCredentials = true;
+const responseBody = (response: AxiosResponse) => response.data;
+
+const handleError = (error: Error) => {
+  if (axios.isAxiosError(error)) {
+    if (error.response) {
+      console.error(error.response.status);
+      console.error(error.response.data);
+    } else if (error.request) {
+      console.error(error.request);
+    } else {
+      console.error(error.message);
+    }
+  } else {
+    console.error("Unexpected error: ", error);
+  }
+  throw error;
+};
+
+const requests = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  post: (url: string, body: any) =>
+    axios.post(url, body).then(responseBody).catch(handleError),
+  get: (url: string) => axios.get(url).then(responseBody).catch(handleError),
+  put: (url: string) => axios.put(url).then(responseBody).catch(handleError),
+};
+
+const PackageService = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createPackage: (data: any) => requests.post("Package", data),
+  getPackages: (page: string, statusFilter: string, trackingNumber: string) =>
+    requests.get(
+      `Package?page=${page}&status=${statusFilter}&trackingNumber=${trackingNumber}`
+    ),
+  getPackage: (packageId?: string) => requests.get(`Package/${packageId}`),
+  getHistory: (packageId?: string) =>
+    requests.get(`Package/${packageId}/History`),
+  updatePackage: (packageId?: string, status?: string) =>
+    requests.put(`Package/${packageId}?status=${status}`),
+};
+export const API = { PackageService };

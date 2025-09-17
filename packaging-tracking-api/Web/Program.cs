@@ -20,7 +20,7 @@ public static class Program
         builder.Services.AddOpenApi();
         builder.Services.AddDbContext<PackageDbContext>(options => options.UseInMemoryDatabase(builder.Configuration.GetConnectionString("Database")));
         builder.Services.AddCors(policy => policy.AddDefaultPolicy(options =>
-            options.WithOrigins("http://localhost:3001").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+            options.WithOrigins("http://localhost:5001").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
         var app = builder.Build();
         
         if (app.Environment.IsDevelopment())
