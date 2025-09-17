@@ -4,7 +4,7 @@ import "./App.css";
 import { Container, MantineProvider } from "@mantine/core";
 import Header from "./Components/Package/Header/Header";
 import PackageList from "./Components/Package/PackagesList";
-import PackageDetail from "./Components/Package/PackageDetail";
+import PackageDetail from "./Components/Package/PackageDetails";
 import { ModalsProvider } from "@mantine/modals";
 import {
   QueryClient,

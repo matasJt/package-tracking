@@ -14,15 +14,13 @@ import PhoneInputWithCountrySelect, {
   type Value,
 } from "react-phone-number-input";
 
-function CreateForm({
-  opened,
-  onClose,
-  onSubmit,
-}: {
+interface CreateFormProps {
   opened: boolean;
   onClose: () => void;
   onSubmit: (values: unknown) => void;
-}) {
+}
+
+function CreateForm({opened,onClose,onSubmit}:CreateFormProps ) {
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {

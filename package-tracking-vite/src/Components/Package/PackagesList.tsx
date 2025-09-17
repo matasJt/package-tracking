@@ -1,40 +1,21 @@
-import {
-  Button,
-  Flex,
-  Grid,
-  Menu,
-  Pagination,
-  Paper,
-  Skeleton,
-  Text,
-  TextInput,
-} from "@mantine/core";
+import { Flex, Grid, Pagination, Paper, Skeleton, Text } from "@mantine/core";
 import { useState } from "react";
 import { type Package } from "../../Models/Package";
 import { API } from "../../Services/api.requests";
 import "@mantine/notifications/styles.css";
-import {
-  IconCancel,
-  IconCheck,
-  IconCopy,
-  IconFilter,
-  IconPlus,
-  IconSend,
-  IconTruckReturn,
-  IconUser,
-} from "@tabler/icons-react";
-import { getHotkeyHandler, useClipboard, useDisclosure } from "@mantine/hooks";
+import { IconCheck } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 import "./Package.scss";
 import { useNavigate, useSearchParams } from "react-router";
-import { formatDate } from "../../Services/date.service";
 import CreateForm from "./Modal/CreateForm";
 import { notifications, Notifications } from "@mantine/notifications";
 import { Else, If, Then } from "react-if";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import ActionBar from "./ActionBar";
+import PackageCard from "./PackageCard";
 
 function PackageList() {
   const navigate = useNavigate();
-  const clipboard = useClipboard({ timeout: 500 });
   const [opened, { open, close }] = useDisclosure(false);
   const [searchValue, setSearchValue] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,10 +23,7 @@ function PackageList() {
   const filter = searchParams.get("status") || "";
   const appliedTrackingNumber = searchParams.get("trackingNumber") || "";
 
-  const {
-    data: packagesResponse,
-    isLoading,
-  } = useQuery({
+  const { data: packagesResponse, isLoading } = useQuery({
     queryKey: ["packages", activePage, filter, appliedTrackingNumber],
     queryFn: () =>
       API.PackageService.getPackages(
@@ -58,13 +36,6 @@ function PackageList() {
   });
   const packages = packagesResponse?.packages ?? [];
   const totalPages = packagesResponse?.totalPageCount ?? 1;
-  const statuses = [
-    { value: "Cancelled", icon: <IconCancel /> },
-    { value: "Returned", icon: <IconTruckReturn /> },
-    { value: "Accepted", icon: <IconCheck /> },
-    { value: "Created", icon: <IconPlus /> },
-    { value: "Sent", icon: <IconSend /> },
-  ];
 
   const filterByTrackingNumber = () => {
     setSearchParams({
@@ -75,7 +46,7 @@ function PackageList() {
   };
 
   const resetFilter = () => {
-  setSearchParams({ page: "1", status: "", trackingNumber: "" });
+    setSearchParams({ page: "1", status: "", trackingNumber: "" });
   };
 
   const filterByStatus = (status: string) => {
@@ -158,22 +129,6 @@ function PackageList() {
   //   searchParams,
   // ]);
 
-  const statusStyle = (status: string) => {
-    switch (status) {
-      case "Created":
-        return "lime";
-      case "Sent":
-        return "orange";
-      case "Cancelled":
-        return "red";
-      case "Accepted":
-        return "green";
-      case "Returned":
-        return "gray";
-      default:
-        return {};
-    }
-  };
   const onPageChange = (page: number) => {
     setSearchParams({
       page: page.toString(),
@@ -185,49 +140,19 @@ function PackageList() {
   return (
     <>
       <Notifications position="bottom-right" />
-      <Paper bg="white" radius="md" mt={20} mb={40} p={20}>
-        <Flex w="100%" gap={10} align="center">
-          <Button size="sm" radius="sm" color="green" onClick={open}>
-            <IconPlus />
-            Create Package
-          </Button>
-          <Menu>
-            <Menu.Target>
-              <Button size='sm' radius="sm">
-                <IconFilter />
-                Filter by status
-              </Button>
-            </Menu.Target>
-            <Menu.Dropdown>
-              {statuses.map((status, index) => (
-                <Menu.Item
-                  key={index}
-                  onClick={() => filterByStatus(status.value)}
-                >
-                  <Flex>
-                    {status.icon}
-                    {status.value}
-                  </Flex>
-                </Menu.Item>
-              ))}
-              <Menu.Item onClick={resetFilter}>Reset</Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-          <TextInput
-            size="md"
-            placeholder="Filter by tracking number"
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            onKeyDown={getHotkeyHandler([["Enter", filterByTrackingNumber]])}
-          />
-        </Flex>
-      </Paper>
+      <ActionBar
+        open={open}
+        onChangeFilter={filterByStatus}
+        onResetFilter={resetFilter}
+        onSetSearchValue={setSearchValue}
+        onPressEnter={filterByTrackingNumber}
+      />
       <CreateForm opened={opened} onClose={close} onSubmit={onCreate} />
 
-      {isLoading &&  (
+      {isLoading && (
         <Grid mb="2rem">
           {Array.from({ length: 8 }).map((_, i) => (
-            <Grid.Col span={{xs:12,sm:6,md:4,lg:3}} key={i}>
+            <Grid.Col span={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
               <Paper withBorder radius="lg" p="lg" h="350px">
                 <Skeleton height={20} mb="sm" />
                 <Skeleton height={15} width="80%" mb="sm" />
@@ -241,85 +166,8 @@ function PackageList() {
         <Then>
           <Grid mb="2rem">
             {packages.map((p: Package) => (
-              <Grid.Col span={{xs:12,sm:6,md:4,lg:3}} key={p.id}>
-                <Paper
-                  withBorder
-                  radius="lg"
-                  p="lg"
-                  bg="white"
-                  h="350px"
-                  id="package-card"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    openDetails(p.id);
-                  }}
-                >
-                  <Flex align="center">
-                    <Text size="sm" mr="2" fw={700}>
-                      {p.trackingNumber}
-                    </Text>
-                    <IconCopy
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        clipboard.copy(p.trackingNumber);
-                      }}
-                      size={17}
-                    />
-                  </Flex>
-                  <Text
-                    size="sm"
-                    style={{
-                      color: "gray",
-                    }}
-                  >
-                    Created: {formatDate(p.created)}
-                  </Text>
-                  <Flex direction="column" gap="lg" mt="md">
-                    <div>
-                      <Text fw={600} size="md">
-                        <IconUser size={20} style={{ marginRight: "5px" }} />
-                        Sender:
-                      </Text>
-                      <Text size="sm" fs="italic">
-                        {p.sender.name}
-                      </Text>
-                      <Text size="sm" fs="italic">
-                        {p.sender.address}
-                      </Text>
-                      <Text size="sm" fs="italic">
-                        {p.sender.phone}
-                      </Text>
-                    </div>
-                    <div>
-                      <Text fw={600} size="md">
-                        <IconUser size={20} style={{ marginRight: "5px" }} />
-                        Receiver:
-                      </Text>
-                      <Text size="sm" fs="italic">
-                        {p.receiver.name}
-                      </Text>
-                      <Text size="sm" fs="italic">
-                        {p.receiver.address}
-                      </Text>
-                      <Text size="sm" fs="italic">
-                        {p.sender.phone}
-                      </Text>
-                    </div>
-                  </Flex>
-                  <Paper
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    bg={statusStyle(p.status)}
-                    radius="sm"
-                    mt={10}
-                    h="2rem"
-                  >
-                    <Text fw={400}>{p.status}</Text>
-                  </Paper>
-                </Paper>
+              <Grid.Col span={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={p.id}>
+                <PackageCard packageObject={p} onOpenDetails={openDetails} />
               </Grid.Col>
             ))}
           </Grid>
@@ -332,22 +180,26 @@ function PackageList() {
           </Flex>
         </Then>
         <Else>
-          <Paper h={100}>
-            <Flex
-              w="100%"
-              h="100%"
-              justify="center"
-              align="center"
-              direction="column"
-            >
-              <Text size="xl" fw={700}>
-                No packages found.
-              </Text>
-              <Text color="dimmed" size="sm">
-                Not packages found by selected filter
-              </Text>
-            </Flex>
-          </Paper>
+          <If condition={!isLoading}>
+            <Then>
+              <Paper h={100}>
+                <Flex
+                  w="100%"
+                  h="100%"
+                  justify="center"
+                  align="center"
+                  direction="column"
+                >
+                  <Text size="xl" fw={700}>
+                    No packages found.
+                  </Text>
+                  <Text color="dimmed" size="sm">
+                    Not packages found by selected filter
+                  </Text>
+                </Flex>
+              </Paper>
+            </Then>
+          </If>
         </Else>
       </If>
     </>

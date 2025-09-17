@@ -1,8 +1,8 @@
-import { Flex, Paper, Text } from "@mantine/core";
+import { Flex, Paper, Text, Title } from "@mantine/core";
 import { IconPackages } from "@tabler/icons-react";
 import "./Header.scss";
 
-function Header({ handleCreateForm }: any) {
+function Header() {
   return (
     <>
       <Paper
@@ -17,7 +17,8 @@ function Header({ handleCreateForm }: any) {
         }}
       >
         <Flex
-          w="70%"
+          w={{base:'65%',xs:'70%'}}
+          h='60px'
           mx="auto"
           bg="white"
           justify="space-between"
@@ -25,7 +26,7 @@ function Header({ handleCreateForm }: any) {
           p="3"
           mb="3"
         >
-          <h2 className="fw-semibold">Package tracking</h2>
+          <Title fz={{ base: 'md',md:'xl'}}>Package Tracker</Title>
           <Text size="sm" m="2">
             <a
               id="groups-list"
