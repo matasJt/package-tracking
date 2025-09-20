@@ -1,6 +1,6 @@
 import { Paper, Text, Timeline } from "@mantine/core";
-import { type PackageHistory } from "../../Models/History";
-import { formatDate } from "../../Services/date.service";
+import { type PackageHistory } from "../../../Models/History";
+import { formatDate } from "../../../Services/date.service";
 
 interface HistoryProps {
   history: PackageHistory[];

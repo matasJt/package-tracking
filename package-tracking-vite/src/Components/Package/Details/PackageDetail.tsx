@@ -1,6 +1,6 @@
 import { Button, Container, Flex, Menu, Paper, Text } from "@mantine/core";
-import { type Package } from "../../Models/Package";
-import { formatDate } from "../../Services/date.service";
+import { type Package } from "../../../Models/Package";
+import { formatDate } from  "../../../Services/date.service";
 import {
   IconCancel,
   IconCheck,

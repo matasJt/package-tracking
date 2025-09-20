@@ -1,6 +1,6 @@
 import { Flex, Paper, Text } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
-import { type Contact } from "../../Models/Contact";
+import { type Contact } from "../../../Models/Contact";
 
 interface DetailsProps {
   contact?: Contact;

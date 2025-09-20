@@ -13,14 +13,16 @@ import PhoneInputWithCountrySelect, {
   isValidPhoneNumber,
   type Value,
 } from "react-phone-number-input";
+import type { Contact } from "../../../Models/Contact";
+import type { CreationProfile } from "../../../Models/CreationProfile";
 
 interface CreateFormProps {
   opened: boolean;
   onClose: () => void;
-  onSubmit: (values: unknown) => void;
+  onSubmit: (values: CreationProfile) => void;
 }
 
-function CreateForm({opened,onClose,onSubmit}:CreateFormProps ) {
+function CreateForm({ opened, onClose, onSubmit }: CreateFormProps) {
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -53,8 +55,22 @@ function CreateForm({opened,onClose,onSubmit}:CreateFormProps ) {
       },
     },
   });
-  const handleSubmit = (values: unknown) => {
-    onSubmit(values);
+  const handleSubmit = () => {
+    const sender: Contact = {
+      name: form.values.senderName,
+      address: form.values.senderAddress,
+      phone: form.values.senderPhone,
+    };
+    const receiver: Contact = {
+      name: form.values.receiverName,
+      address: form.values.receiverAddress,
+      phone: form.values.receiverPhone,
+    };
+    const body: CreationProfile = {
+      sender: sender,
+      recipient: receiver,
+    };
+    onSubmit(body);
     form.reset();
     onClose();
   };
@@ -67,8 +83,8 @@ function CreateForm({opened,onClose,onSubmit}:CreateFormProps ) {
         title="Package creation"
       >
         <form
-          onSubmit={form.onSubmit((values) => {
-            handleSubmit(values);
+          onSubmit={form.onSubmit(() => {
+            handleSubmit();
           })}
         >
           <Container mb={20}>

@@ -8,7 +8,7 @@ namespace Application.Services;
 
 public class PackageService(IPackageRepository repository)
 {
-    private const int PageSize = 10;
+    private const int PageSize = 8;
     public async Task<PackageDto> CreatePackage(CreatePackageDto dto)
     {
         var newPackage = new Package(

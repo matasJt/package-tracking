@@ -8,3 +8,4 @@ export interface Package {
   sender: Contact;
   receiver: Contact;
 }
+

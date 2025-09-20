@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
-public class PackageDbContext(DbContextOptions<PackageDbContext> options, IConfiguration configuration) : DbContext(options)
+public class PackageDbContext(DbContextOptions<PackageDbContext> options) : DbContext(options)
 {
     public DbSet<Package> Packages { get; set; }
     public DbSet<PackageHistory> PackageHistory { get; set; }

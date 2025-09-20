@@ -4,28 +4,11 @@ axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.withCredentials = true;
 const responseBody = (response: AxiosResponse) => response.data;
 
-const handleError = (error: Error) => {
-  if (axios.isAxiosError(error)) {
-    if (error.response) {
-      console.error(error.response.status);
-      console.error(error.response.data);
-    } else if (error.request) {
-      console.error(error.request);
-    } else {
-      console.error(error.message);
-    }
-  } else {
-    console.error("Unexpected error: ", error);
-  }
-  throw error;
-};
-
 const requests = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  post: (url: string, body: any) =>
-    axios.post(url, body).then(responseBody).catch(handleError),
-  get: (url: string) => axios.get(url).then(responseBody).catch(handleError),
-  put: (url: string) => axios.put(url).then(responseBody).catch(handleError),
+  post: (url: string, body: any) => axios.post(url, body).then(responseBody),
+  get: (url: string) => axios.get(url).then(responseBody),
+  put: (url: string) => axios.put(url).then(responseBody),
 };
 
 const PackageService = {

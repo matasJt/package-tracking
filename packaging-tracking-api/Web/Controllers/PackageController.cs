@@ -36,7 +36,13 @@ public class PackageController(PackageService packageService) : ControllerBase
     public async Task<IActionResult> GetAll([FromQuery] int page, [FromQuery] string status = "",
         [FromQuery] string trackingNumber = "")
     {
-        return Ok(await packageService.GetPackages(page, status, trackingNumber));
+        var json = await packageService.GetPackages(page, status, trackingNumber);
+        if (json.Packages is { Count: 0 })
+        {
+            return NotFound("Not found any packages by this filter");
+        }
+
+        return Ok(json);
     }
 
     [HttpPost]

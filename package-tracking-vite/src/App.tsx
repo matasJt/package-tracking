@@ -3,13 +3,10 @@ import { BrowserRouter, Route, Navigate, Routes } from "react-router-dom";
 import "./App.css";
 import { Container, MantineProvider } from "@mantine/core";
 import Header from "./Components/Package/Header/Header";
-import PackageList from "./Components/Package/PackagesList";
-import PackageDetail from "./Components/Package/PackageDetails";
+import PackageList from "./Components/Package/List/PackagesList";
+import PackageDetails from "./Components/Package/Details/PackageDetails";
 import { ModalsProvider } from "@mantine/modals";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
   return (
@@ -22,7 +19,10 @@ function App() {
               <Routes>
                 <Route path="/" element={<Navigate to="/packages" replace />} />
                 <Route path="/packages" element={<PackageList />} />
-                <Route path="/packages/:packageId" element={<PackageDetail />} />
+                <Route
+                  path="/packages/:packageId"
+                  element={<PackageDetails />}
+                />
               </Routes>
             </BrowserRouter>
           </Container>
